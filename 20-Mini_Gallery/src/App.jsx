@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { getData } from "./api/picsm";
+import { distributePins } from "./utils/distributePins";
+import Pin from "./components/Pic";
 
 const App = () => {
   const [data, setData] = useState([[], [], [], []]);
@@ -12,16 +13,11 @@ const App = () => {
     const fetchData = async () => {
       if (loading) return;
       setLoading(true);
+
       try {
         const newData = await getData(page);
 
-        // setData((prev) => [...prev, ...newData]);
-        const columns = data.map((column) => [...column]);
-
-        newData.forEach((element, index) => {
-          columns[index % 4].push(element);
-        });
-        setData(columns);
+        setData((prev) => distributePins(prev, newData));
       } catch (error) {
         console.error(error);
       } finally {
@@ -39,7 +35,7 @@ const App = () => {
           setPage((prev) => prev + 1);
         }
       },
-      { rootMargin: "300px" },
+      { rootMargin: "400px" },
     );
 
     if (loaderRef.current) {
@@ -57,24 +53,16 @@ const App = () => {
         {data.map((column) => (
           <div className="flex-1">
             {column.map((pic) => (
-              <a
-                rel="noopener noreferrer"
-                href={pic.url}
-                key={pic.id}
-                target="_blank"
-              >
-                <img
-                  className="mb-4 w-full rounded-lg"
-                  src={pic.download_url}
-                  alt={`Photo by ${pic.author}`}
-                />
-              </a>
+              <Pin pic={pic} />
             ))}
           </div>
         ))}
       </div>
 
-      <div ref={loaderRef} className="h-20 w-full">
+      <div
+        ref={loaderRef}
+        className="h-20 w-full flex justify-center items-center"
+      >
         {loading && <h2 className="text-2xl font-bold">Loading...</h2>}
       </div>
     </>
