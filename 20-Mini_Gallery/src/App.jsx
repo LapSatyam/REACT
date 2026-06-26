@@ -3,7 +3,7 @@ import axios from "axios";
 import { getData } from "./api/picsm";
 
 const App = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([[], [], [], []]);
   const [page, setPage] = useState(3);
   const [loading, setLoading] = useState(false);
   const loaderRef = useRef(null);
@@ -15,7 +15,13 @@ const App = () => {
       try {
         const newData = await getData(page);
 
-        setData((prev) => [...prev, ...newData]);
+        // setData((prev) => [...prev, ...newData]);
+        const columns = data.map((column) => [...column]);
+
+        newData.forEach((element, index) => {
+          columns[index % 4].push(element);
+        });
+        setData(columns);
       } catch (error) {
         console.error(error);
       } finally {
@@ -47,28 +53,28 @@ const App = () => {
 
   return (
     <>
-      <div className="min-h-screen w-full bg-transparent columns-2 md:columns-3 lg:columns-4 gap-4">
-        {data.map((pic) => (
-          <a
-            rel="noopener noreferrer"
-            href={pic.url}
-            key={pic.id}
-            target="_blank"
-            alt={`Photo by ${pic.author}`}
-          >
-            <img
-              className="mb-4 w-full rounded-lg"
-              src={pic.download_url}
-              alt=""
-            />
-          </a>
+      <div className="min-h-screen w-full bg-transparent flex gap-4">
+        {data.map((column) => (
+          <div className="flex-1">
+            {column.map((pic) => (
+              <a
+                rel="noopener noreferrer"
+                href={pic.url}
+                key={pic.id}
+                target="_blank"
+              >
+                <img
+                  className="mb-4 w-full rounded-lg"
+                  src={pic.download_url}
+                  alt={`Photo by ${pic.author}`}
+                />
+              </a>
+            ))}
+          </div>
         ))}
       </div>
 
-      <div
-        ref={loaderRef}
-        className="h-20 w-full flex justify-center items-center opacity-80"
-      >
+      <div ref={loaderRef} className="h-20 w-full">
         {loading && <h2 className="text-2xl font-bold">Loading...</h2>}
       </div>
     </>
