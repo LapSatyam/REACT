@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+:root{
+    --c1:#0808a3;
+    --c2:#0d1f69;
+    --c3:#1A1953;
+    --c4:#080616;
+}
+
+body{
+    font-family: gilroy;
+    @apply bg-zinc-900 text-white;
+}
